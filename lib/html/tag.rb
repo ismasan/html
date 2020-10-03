@@ -4,43 +4,51 @@ module HTML
   LINE_BREAK = "\n"
   WHITESPACE = ' '
 
-  class Tag
-    def initialize(name, *opts, &content_block)
-      @name = name
-      @attributes = opts.last.kind_of?(Hash) ? prepare_attributes(opts.last) : {}
-      @content = if block_given?
-                   yield(TagSet.new)
-                 elsif !opts.first.kind_of?(Hash)
-                   prepare_content(opts.first)
-                 else
-                   raise ArgumentError, "don't know how to handle #{opts.inspect}"
-                 end
-    end
+  # tag(:p, &block)
+  # tag(:p, id: '11', &block)
+  # tag(:p, 'hello', id: '11')
+  # tag(:p, 'hello')
+  # tag(:br)
+  #
+  def self.tag(*args, &block)
+    Tag.build(*args, &block)
+  end
 
-    def to_s
-      if content.nil?
-        %(<#{name}#{render_attributes} />)
-      else
-        %(<#{name}#{render_attributes}>#{content.to_s}</#{name}>)
+  class Tag
+    def self.build(*args, &block)
+      attributes = args.last.kind_of?(Hash) ? args.pop : {}
+      if args.first.is_a?(Symbol) # tag name
+        name = args.shift
+        return UnaryTag.new(name, attributes) unless args.any? || block_given?
+
+        content = if block_given?
+                    TagSet.new.tap do |set|
+                      last = block.call(set)
+                      set.tag(last) unless last == set.last
+                    end
+                  elsif args.respond_to?(:to_s)
+                    args.first
+                  else
+                    raise ArgumentError, "Can't use #{args.first} as tag content, must respond to #to_s"
+                  end
+        ContentTag.new(name, content, attributes)
+      elsif args.first.respond_to?(:to_s)
+        args.first
       end
     end
 
-    private
+    attr_reader :name, :attributes
 
-    attr_reader :name, :attributes, :content
+    def inspect
+      %(<#{self.class.name} #{name} #{attributes.inspect} >)
+    end
+
+    private
 
     def prepare_attributes(attrs)
       attrs.each.with_object({}) do |(k, v), ret|
         ret[k] = [v].flatten
       end
-    end
-
-    def prepare_content(ctn)
-      return nil unless ctn
-
-      raise ArgumentError, "content must respond to #to_s, but got #{ctn.inspect}" unless ctn.respond_to?(:to_s)
-
-      ctn
     end
 
     def render_attributes
@@ -52,18 +60,52 @@ module HTML
     end
   end
 
+  class UnaryTag < Tag
+    def initialize(name, attributes = {})
+      @name, @attributes = name, prepare_attributes(attributes)
+    end
+
+    def to_s
+      %(<#{name}#{render_attributes} />)
+    end
+  end
+
+  class ContentTag < Tag
+    def initialize(name, content, attributes)
+      @name, @attributes = name, prepare_attributes(attributes)
+      @content = content
+    end
+
+    def to_s
+      %(<#{name}#{render_attributes}>#{content.to_s}</#{name}>)
+    end
+
+    private
+
+    attr_reader :content
+  end
+
   class TagSet
     def initialize
       @tags = []
     end
 
     def tag(*args, &blk)
-      tags << Tag.new(*args, &blk)
-      self
+      t = Tag.build(*args, &blk)
+      @tags << t
+      t
+    end
+
+    def last
+      tags.last
     end
 
     def to_s
       LINE_BREAK + tags.map(&:to_s).join(LINE_BREAK) + LINE_BREAK
+    end
+
+    def inspect
+      %(<#{self.class.name} [#{tags.map(&:inspect)}]>)
     end
 
     private

@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 require "bundler/setup"
+require 'byebug'
 require "html"
 
 RSpec.configure do |config|
