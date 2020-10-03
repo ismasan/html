@@ -5,3 +5,4 @@ module HTML
 end
 
 require 'html/tag'
+require 'html/component'
