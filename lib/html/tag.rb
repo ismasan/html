@@ -22,12 +22,9 @@ module HTML
         return UnaryTag.new(name, attributes) unless args.any? || block_given?
 
         content = if block_given?
-                    TagSet.new.tap do |set|
-                      last = block.call(set)
-                      set.tag(last) unless last == set.last
-                    end
+                    TagSet.new(&block)
                   elsif args.respond_to?(:to_s)
-                    args.first
+                    TextNode.new(args.first)
                   else
                     raise ArgumentError, "Can't use #{args.first} as tag content, must respond to #to_s"
                   end
@@ -70,6 +67,16 @@ module HTML
     end
   end
 
+  class TextNode
+    def initialize(txt)
+      @txt = txt
+    end
+
+    def to_s
+      @txt.to_s
+    end
+  end
+
   class ContentTag < Tag
     def initialize(name, content, attributes)
       @name, @attributes = name, prepare_attributes(attributes)
@@ -86,18 +93,15 @@ module HTML
   end
 
   class TagSet
-    def initialize
+    def initialize(&block)
       @tags = []
+      config(block) if block_given?
     end
 
     def tag(*args, &blk)
       t = Tag.build(*args, &blk)
       @tags << t
       t
-    end
-
-    def last
-      tags.last
     end
 
     def to_s
@@ -111,5 +115,11 @@ module HTML
     private
 
     attr_reader :tags
+
+    def config(block)
+      ret = block.call(self)
+      tag(ret) unless ret == tags.last
+    end
+
   end
 end
