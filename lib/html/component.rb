@@ -2,6 +2,14 @@
 
 module HTML
   class Component
+    def self.registry
+      @registry ||= {}
+    end
+
+    def self.register(key, constructor)
+      registry[key] = constructor
+    end
+
     def self.props
       @props ||= {}
     end

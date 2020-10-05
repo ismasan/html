@@ -13,10 +13,13 @@ RSpec.describe HTML::Component do
       end
     end
 
+    HTML::Component.register(:input, Input)
+
     row = Class.new(described_class) do
       def render
         tag :div, class: 'row' do |c|
-          c.tag Input.new(name: 'email', value: 'lol@ca.cl')
+          # c.tag Input.new(name: 'email', value: 'lol@ca.cl')
+          c.component :input, name: 'email', value: 'lol@ca.cl'
         end
       end
     end

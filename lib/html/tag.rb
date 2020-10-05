@@ -104,6 +104,12 @@ module HTML
       t
     end
 
+    def component(key, *args, &blk)
+      comp = HTML::Component.registry.fetch(key).new(*args, &blk)
+      @tags << comp
+      comp
+    end
+
     def to_s
       LINE_BREAK + tags.map(&:to_s).join(LINE_BREAK) + LINE_BREAK
     end
@@ -120,6 +126,5 @@ module HTML
       ret = block.call(self)
       tag(ret) unless ret == tags.last
     end
-
   end
 end
