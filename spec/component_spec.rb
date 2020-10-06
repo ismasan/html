@@ -28,6 +28,24 @@ RSpec.describe HTML::Component do
     expect(row.render).to eq(%(<div class="row">\n<div class="input">\n<input type="text" name="email" value="lol@ca.cl" />\n</div>\n</div>))
   end
 
+  specify 'missing arguments' do
+    component = Class.new(described_class) do
+      prop :foo
+    end
+
+    expect {
+      component.render
+    }.to raise_error(ArgumentError)
+
+    expect {
+      component.render(bar: 1)
+    }.to raise_error(ArgumentError)
+
+    # expect {
+    #   component.render(foo:2, bar: 1)
+    # }.to raise_error(ArgumentError)
+  end
+
   specify 'nested content' do
     Parent = Class.new(described_class) do
       prop :title

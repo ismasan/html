@@ -14,8 +14,8 @@ module HTML
       @props ||= {}
     end
 
-    def self.prop(key)
-      props[key] = true
+    def self.prop(key, opts = {})
+      props[key] = opts
     end
 
     def self.render(*args, &block)
@@ -23,7 +23,7 @@ module HTML
     end
 
     def initialize(props = {}, &block)
-      @props = self.class.props.keys.each.with_object({}) do |key, ret|
+      @props = self.class.props.each.with_object({}) do |(key, opts), ret|
         raise ArgumentError, "expects #{key}" unless props.key?(key)
 
         ret[key] = props[key]
