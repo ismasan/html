@@ -33,13 +33,21 @@ module HTML
       end
     end
 
-    attr_reader :name, :attributes
-
     def inspect
       %(<#{self.class.name} #{name} #{attributes.inspect} >)
     end
 
+    def to_s
+      Renderer.new.visit(to_ast)
+    end
+
+    def to_ast
+      raise NotImplementedError, "Implement #{__method__}"
+    end
+
     private
+
+    attr_reader :name, :attributes
 
     def prepare_attributes(attrs)
       attrs.each.with_object({}) do |(k, v), ret|
@@ -53,8 +61,12 @@ module HTML
       @name, @attributes = name, prepare_attributes(attributes)
     end
 
-    def to_s
-      Renderer.new.visit(self)
+    def to_ast
+      {
+        type: :unary_tag,
+        name: name,
+        attributes: attributes
+      }
     end
   end
 
@@ -63,28 +75,39 @@ module HTML
       @txt = txt
     end
 
+    def to_ast
+      {
+        type: :text_node,
+        content: to_s
+      }
+    end
+
     def to_s
       @txt.to_s
     end
   end
 
   class ContentTag < Tag
-    attr_reader :content
-
     def initialize(name, content, attributes)
       @name, @attributes = name, prepare_attributes(attributes)
       @content = content
     end
 
-    def to_s
-      Renderer.new.visit(self)
-      # %(<#{name}#{render_attributes}>#{content.to_s}</#{name}>)
+    def to_ast
+      {
+        type: :content_tag,
+        name: name,
+        attributes: attributes,
+        content: content.to_ast
+      }
     end
+
+    private
+
+    attr_reader :content
   end
 
   class TagSet
-    attr_reader :tags
-
     def initialize(&block)
       @tags = []
       config(block) if block_given?
@@ -103,7 +126,14 @@ module HTML
     end
 
     def to_s
-      Renderer.new.visit(self)
+      Renderer.new.visit(to_ast)
+    end
+
+    def to_ast
+      {
+        type: :tag_set,
+        tags: tags.map(&:to_ast)
+      }
     end
 
     def inspect
@@ -111,6 +141,8 @@ module HTML
     end
 
     private
+
+    attr_reader :tags
 
     def config(block)
       ret = block.call(self)

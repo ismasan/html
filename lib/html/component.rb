@@ -33,7 +33,16 @@ module HTML
     end
 
     def to_s
-      Renderer.new.visit(self)
+      Renderer.new.visit(to_ast)
+    end
+
+    def to_ast
+      ctn = content
+
+      {
+        type: :component,
+        content: render.to_ast
+      }
     end
 
     private
@@ -45,7 +54,9 @@ module HTML
     end
 
     def content
-      content_block ? content_block.call(self) : nil
+      return nil unless content_block
+
+      content_block.call(self)
     end
 
     def tag(*args, &block)

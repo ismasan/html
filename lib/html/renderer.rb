@@ -5,30 +5,27 @@ module HTML
     WHITESPACE = ' '
 
     def visit(node)
-      return visit_component(node) if node.kind_of?(Component)
-
-      short_name = node.class.to_s.split('::').last
-      send("visit_#{short_name}", node)
+      send("visit_#{node.fetch(:type)}", node)
     end
 
-    def visit_UnaryTag(tag)
-      %(<#{tag.name}#{render_attributes(tag.attributes)} />)
+    def visit_unary_tag(node)
+      %(<#{node[:name]}#{render_attributes(node[:attributes])} />)
     end
 
-    def visit_ContentTag(tag)
-      %(<#{tag.name}#{render_attributes(tag.attributes)}>#{visit(tag.content)}</#{tag.name}>)
+    def visit_content_tag(node)
+      %(<#{node[:name]}#{render_attributes(node[:attributes])}>#{visit(node[:content])}</#{node[:name]}>)
     end
 
-    def visit_TextNode(node)
-      node.to_s
+    def visit_text_node(node)
+      node[:content]
     end
 
-    def visit_TagSet(set)
-      set.tags.map { |tag| visit(tag) }.join
+    def visit_tag_set(node)
+      node[:tags].map { |tag| visit(tag) }.join
     end
 
-    def visit_component(component)
-      visit(component.render)
+    def visit_component(node)
+      node[:content] ? visit(node[:content]) : nil
     end
 
     private
