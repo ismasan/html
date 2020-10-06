@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module HTML
-  LINE_BREAK = "\n"
   WHITESPACE = ' '
 
   # tag(:p, &block)
@@ -30,7 +29,7 @@ module HTML
                   end
         ContentTag.new(name, content, attributes)
       elsif args.first.respond_to?(:to_s)
-        args.first
+        TextNode.new(args.first)
       end
     end
 
@@ -47,14 +46,6 @@ module HTML
         ret[k] = [v].flatten
       end
     end
-
-    def render_attributes
-      return '' unless attributes.any?
-
-      WHITESPACE + attributes.map do |k, v|
-        [k, %("#{v.join(WHITESPACE)}")].join('=')
-      end.join(WHITESPACE)
-    end
   end
 
   class UnaryTag < Tag
@@ -63,7 +54,7 @@ module HTML
     end
 
     def to_s
-      %(<#{name}#{render_attributes} />)
+      Renderer.new.visit(self)
     end
   end
 
@@ -78,21 +69,22 @@ module HTML
   end
 
   class ContentTag < Tag
+    attr_reader :content
+
     def initialize(name, content, attributes)
       @name, @attributes = name, prepare_attributes(attributes)
       @content = content
     end
 
     def to_s
-      %(<#{name}#{render_attributes}>#{content.to_s}</#{name}>)
+      Renderer.new.visit(self)
+      # %(<#{name}#{render_attributes}>#{content.to_s}</#{name}>)
     end
-
-    private
-
-    attr_reader :content
   end
 
   class TagSet
+    attr_reader :tags
+
     def initialize(&block)
       @tags = []
       config(block) if block_given?
@@ -111,7 +103,7 @@ module HTML
     end
 
     def to_s
-      LINE_BREAK + tags.map(&:to_s).join(LINE_BREAK) + LINE_BREAK
+      Renderer.new.visit(self)
     end
 
     def inspect
@@ -119,8 +111,6 @@ module HTML
     end
 
     private
-
-    attr_reader :tags
 
     def config(block)
       ret = block.call(self)

@@ -17,7 +17,7 @@ RSpec.describe HTML::Tag do
       c.tag(:p, 'Paragraph')
     end
 
-    expect(tag.to_s).to eq(%(<div class="box">\n<h1>Title</h1>\n<p>Paragraph</p>\n</div>))
+    expect(tag.to_s).to eq(%(<div class="box"><h1>Title</h1><p>Paragraph</p></div>))
   end
 
   specify 'handling extra trailing content in block' do
@@ -26,6 +26,6 @@ RSpec.describe HTML::Tag do
       "free text"
     end
 
-    expect(tag.to_s).to eq(%(<div class="box">\n<p>para</p>\nfree text\n</div>))
+    expect(tag.to_s).to eq(%(<div class="box"><p>para</p>free text</div>))
   end
 end

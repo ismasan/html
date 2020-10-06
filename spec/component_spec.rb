@@ -24,8 +24,8 @@ RSpec.describe HTML::Component do
       end
     end
 
-    expect(Input.render(name: 'email', value: 'email@me.cl')).to eq(%(<div class="input">\n<input type="text" name="email" value="email@me.cl" />\n</div>))
-    expect(row.render).to eq(%(<div class="row">\n<div class="input">\n<input type="text" name="email" value="lol@ca.cl" />\n</div>\n</div>))
+    expect(Input.render(name: 'email', value: 'email@me.cl')).to eq(%(<div class="input"><input type="text" name="email" value="email@me.cl" /></div>))
+    expect(row.render).to eq(%(<div class="row"><div class="input"><input type="text" name="email" value="lol@ca.cl" /></div></div>))
   end
 
   specify 'missing arguments' do
@@ -64,6 +64,6 @@ RSpec.describe HTML::Component do
       'Content here'
     end
 
-    expect(output).to eq(%(<div class="parent">\n<h1>Parent</h1>\n<p>\nContent here\n</p>\n</div>))
+    expect(output).to eq(%(<div class="parent"><h1>Parent</h1><p>Content here</p></div>))
   end
 end

@@ -33,7 +33,7 @@ module HTML
     end
 
     def to_s
-      render.to_s
+      Renderer.new.visit(self)
     end
 
     private
