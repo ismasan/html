@@ -4,6 +4,10 @@ module HTML
   class Renderer
     WHITESPACE = ' '
 
+    def self.render(node)
+      new.visit(node.to_ast)
+    end
+
     def visit(node)
       send("visit_#{node.fetch(:type)}", node)
     end

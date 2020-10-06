@@ -20,7 +20,7 @@ module HTML
     end
 
     def to_s
-      Renderer.new.visit(to_ast)
+      Renderer.render(self)
     end
 
     def to_ast

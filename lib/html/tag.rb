@@ -38,7 +38,7 @@ module HTML
     end
 
     def to_s
-      Renderer.new.visit(to_ast)
+      Renderer.render(self)
     end
 
     def to_ast
@@ -106,5 +106,4 @@ module HTML
 
     attr_reader :content
   end
-
 end
