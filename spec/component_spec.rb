@@ -66,4 +66,19 @@ RSpec.describe HTML::Component do
 
     expect(output).to eq(%(<div class="parent"><h1>Parent</h1><p>Content here</p></div>))
   end
+
+  specify 'listing arrays' do
+    contact_list = Class.new(described_class) do
+      prop :contacts
+      def render
+        tag(:ul, class: 'contacts') do |ul|
+          props[:contacts].each do |contact|
+            ul.tag(:li, contact)
+          end
+        end
+      end
+    end
+
+    expect(contact_list.render(contacts: ['A', 'B'])).to eq(%(<ul class="contacts"><li>A</li><li>B</li></ul>))
+  end
 end

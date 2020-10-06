@@ -40,7 +40,7 @@ module HTML
 
     def config(block)
       ret = block.call(self)
-      tag(ret) unless ret == tags.last
+      tag(ret) if ret != tags.last && (ret.kind_of?(String) || ret.respond_to?(:to_ast))
     end
   end
 end
