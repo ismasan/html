@@ -2,7 +2,7 @@
 
 RSpec.describe HTML::Component do
   specify do
-    Input = Class.new(described_class) do
+    input = Class.new(described_class) do
       prop :name
       prop :value
 
@@ -13,18 +13,17 @@ RSpec.describe HTML::Component do
       end
     end
 
-    HTML::Component.register(:input, Input)
+    HTML::Component.register(:input, input)
 
     row = Class.new(described_class) do
       def render
         tag :div, class: 'row' do |c|
-          # c.tag Input.new(name: 'email', value: 'lol@ca.cl')
           c.component :input, name: 'email', value: 'lol@ca.cl'
         end
       end
     end
 
-    expect(Input.render(name: 'email', value: 'email@me.cl')).to eq(%(<div class="input"><input type="text" name="email" value="email@me.cl" /></div>))
+    expect(input.render(name: 'email', value: 'email@me.cl')).to eq(%(<div class="input"><input type="text" name="email" value="email@me.cl" /></div>))
     expect(row.render).to eq(%(<div class="row"><div class="input"><input type="text" name="email" value="lol@ca.cl" /></div></div>))
   end
 
