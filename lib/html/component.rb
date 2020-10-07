@@ -2,6 +2,19 @@
 
 module HTML
   class Component
+    class Slot
+      attr_reader :default
+      def initialize(default: nil, &default_block)
+        @default = if default
+                     default.respond_to?(:call) ? default : ->(_) { default }
+                   elsif block_given?
+                     default_block
+                   else
+                     nil
+                   end
+      end
+    end
+
     NOOP_CONTENT_BLOCK = ->(*) {}
 
     def self.registry
@@ -24,8 +37,8 @@ module HTML
       @slots ||= {}
     end
 
-    def self.slot(key, opts = {})
-      slots[key] = opts
+    def self.slot(key, **opts, &default)
+      slots[key] = Slot.new(**opts, &default)
     end
 
     def self.render(*args, &block)

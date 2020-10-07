@@ -112,21 +112,25 @@ RSpec.describe HTML::Component do
   end
 
   describe 'slots' do
-    specify 'trancludes slots' do
-      list = Class.new(described_class) do
+    let!(:component) do
+      Class.new(described_class) do
         slot :s1
-        slot :s2
+        slot :s2 do |t|
+          t.tag(:span, 'Default')
+        end
 
         def render
           tag(:div, slots[:s1], class: 's1')
-          tag(:div, content, class: 'ctn')
+          tag(:div, content, class: 'ctn') if content.any?
           tag(:div, class: 's2') do |d|
             slots[:s2]
           end
         end
       end
+    end
 
-      out = list.render do |r|
+    specify 'trancludes slots' do
+      out = component.render do |r|
         r.slot(:s1, 'Slot 1')
         r.tag(:span, 'Content here')
         r.slot(:s2) do |s2|
@@ -136,6 +140,14 @@ RSpec.describe HTML::Component do
       end
 
       expect(out).to eq(%(<div class="s1">Slot 1</div><div class="ctn"><span>Content here</span>last</div><div class="s2"><p>Slot 2</p></div>))
+    end
+
+    specify 'fills in slot defaults' do
+      out = component.render do |r|
+        r.slot(:s1, 'Slot 1')
+      end
+
+      expect(out).to eq(%(<div class="s1">Slot 1</div><div class="s2"><span>Default</span></div>))
     end
   end
 end

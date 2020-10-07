@@ -10,6 +10,10 @@ module HTML
       config(block) if block_given?
     end
 
+    def any?
+      tags.any?
+    end
+
     def tag(*args, &blk)
       t = Tag.build(*args, &blk)
       @tags << t
@@ -48,21 +52,27 @@ module HTML
 
   class SlotRecorder
     def initialize(definitions, &block)
+      @definitions = definitions
       @slots = {}
       block.call(self) if block_given?
+      # populate defaults
+      @definitions.each do |key, d|
+        next if @slots.key?(key)
+
+        slot(key, &d.default)
+      end
     end
 
     def tag(*_)
-
     end
 
     def component(*_)
-
     end
 
     def slot(key, content = nil, &block)
-      content ||= TagSet.new(&block)
-      @slots[key] = content
+      raise ArgumentError, "slot :#{key} is not registered" unless @definitions.key?(key)
+
+      @slots[key] = content || TagSet.new(&block)
     end
 
     def [](key)
