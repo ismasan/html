@@ -33,10 +33,16 @@ module HTML
       end
 
       @content_block = block_given? ? block : nil
+      @tag_set = TagSet.new
     end
 
     def to_s
       Renderer.render(self)
+    end
+
+    def children
+      render
+      tag_set
     end
 
     def render
@@ -45,11 +51,7 @@ module HTML
 
     private
 
-    attr_reader :props, :content_block
-
-    def render
-      ''
-    end
+    attr_reader :props, :content_block, :tag_set
 
     def content
       return nil unless content_block
@@ -58,7 +60,12 @@ module HTML
     end
 
     def tag(*args, &block)
-      HTML.tag(*args, &block)
+      tag_set.tag(*args, &block)
+      # HTML.tag(*args, &block)
+    end
+
+    def component(*args, &block)
+      tag_set.component(*args, &block)
     end
   end
 end

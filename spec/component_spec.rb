@@ -81,4 +81,16 @@ RSpec.describe HTML::Component do
 
     expect(contact_list.render(contacts: ['A', 'B'])).to eq(%(<ul class="contacts"><li>A</li><li>B</li></ul>))
   end
+
+  specify 'a component with multiple content tags' do
+    list = Class.new(described_class) do
+      def render
+        tag(:p, 'one')
+        tag(:p, 'two')
+        tag(:p, 'three')
+      end
+    end
+
+    expect(list.render).to eq(%(<p>one</p><p>two</p><p>three</p>))
+  end
 end

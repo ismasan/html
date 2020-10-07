@@ -29,8 +29,7 @@ module HTML
     end
 
     def visit_component(node)
-      ctn = node.render
-      ctn ? visit(ctn) : nil
+      visit(node.children)
     end
 
     private
