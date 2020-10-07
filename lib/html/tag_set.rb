@@ -46,7 +46,8 @@ module HTML
     private
 
     def config(block)
-      handle_trailing_content(block.call(self))
+      output = block.arity == 0 ? instance_eval(&block) : block.call(self)
+      handle_trailing_content(output)
     end
   end
 
@@ -54,7 +55,9 @@ module HTML
     def initialize(definitions, &block)
       @definitions = definitions
       @slots = {}
-      block.call(self) if block_given?
+      if block_given?
+        block.arity == 0 ? instance_eval(&block) : block.call(self)
+      end
       # populate defaults
       @definitions.each do |key, d|
         next if @slots.key?(key)

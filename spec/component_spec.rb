@@ -46,7 +46,7 @@ RSpec.describe HTML::Component do
   end
 
   specify 'nested content' do
-    Parent = Class.new(described_class) do
+    component = Class.new(described_class) do
       prop :title
 
       def render
@@ -60,12 +60,19 @@ RSpec.describe HTML::Component do
     end
 
     outer_var = 1
-    output = Parent.render(title: 'Parent') do |c|
+    output = component.render(title: 'Parent') do |c|
       c.tag :span, 'Content here'
       "last #{outer_var}"
     end
 
     expect(output).to eq(%(<div class="parent"><h1>Parent</h1><p><span>Content here</span>last 1</p></div>))
+
+    output = component.render(title: 'Parent') do
+      tag :span, 'private block'
+      "last #{outer_var}"
+    end
+
+    expect(output).to eq(%(<div class="parent"><h1>Parent</h1><p><span>private block</span>last 1</p></div>))
   end
 
   specify 'listing arrays' do
