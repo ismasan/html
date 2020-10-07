@@ -61,10 +61,11 @@ RSpec.describe HTML::Component do
     end
 
     output = Parent.render(title: 'Parent') do |c|
-      'Content here'
+      c.tag :span, 'Content here'
+      'last'
     end
 
-    expect(output).to eq(%(<div class="parent"><h1>Parent</h1><p>Content here</p></div>))
+    expect(output).to eq(%(<div class="parent"><h1>Parent</h1><p><span>Content here</span>last</p></div>))
   end
 
   specify 'listing arrays' do

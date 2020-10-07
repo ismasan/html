@@ -2,6 +2,8 @@
 
 module HTML
   class Component
+    NOOP_CONTENT_BLOCK = ->(*) {}
+
     def self.registry
       @registry ||= {}
     end
@@ -32,7 +34,7 @@ module HTML
         ret[key] = props[key]
       end
 
-      @content_block = block_given? ? block : nil
+      @content_block = block_given? ? block : NOOP_CONTENT_BLOCK
       @tag_set = TagSet.new
     end
 
@@ -41,22 +43,22 @@ module HTML
     end
 
     def children
-      trailing = render
-      tag_set.handle_trailing_content(trailing)
-    end
-
-    def render
-      nil
+      @children ||= (
+        trailing = render
+        tag_set.handle_trailing_content(trailing)
+      )
     end
 
     private
 
     attr_reader :props, :content_block, :tag_set
 
-    def content
-      return nil unless content_block
+    def render
+      nil
+    end
 
-      content_block.call(self)
+    def content
+      @content ||= TagSet.new(&content_block)
     end
 
     def tag(*args, &block)
