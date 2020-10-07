@@ -30,11 +30,15 @@ module HTML
       %(<#{self.class.name} [#{tags.map(&:inspect)}]>)
     end
 
+    def handle_trailing_content(ctn)
+      tag(ctn) if ctn != tags.last && (ctn.kind_of?(String) || ctn.respond_to?(:type))
+      self
+    end
+
     private
 
     def config(block)
-      ret = block.call(self)
-      tag(ret) if ret != tags.last && (ret.kind_of?(String) || ret.respond_to?(:to_ast))
+      handle_trailing_content(block.call(self))
     end
   end
 end

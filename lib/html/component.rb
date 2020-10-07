@@ -41,8 +41,8 @@ module HTML
     end
 
     def children
-      render
-      tag_set
+      trailing = render
+      tag_set.handle_trailing_content(trailing)
     end
 
     def render

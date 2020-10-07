@@ -88,9 +88,10 @@ RSpec.describe HTML::Component do
         tag(:p, 'one')
         tag(:p, 'two')
         tag(:p, 'three')
+        'trailing'
       end
     end
 
-    expect(list.render).to eq(%(<p>one</p><p>two</p><p>three</p>))
+    expect(list.render).to eq(%(<p>one</p><p>two</p><p>three</p>trailing))
   end
 end
