@@ -20,6 +20,14 @@ module HTML
       props[key] = opts
     end
 
+    def self.slots
+      @slots ||= {}
+    end
+
+    def self.slot(key, opts = {})
+      slots[key] = opts
+    end
+
     def self.render(*args, &block)
       new(*args, &block).to_s
     end
@@ -35,6 +43,7 @@ module HTML
       end
 
       @content_block = block_given? ? block : NOOP_CONTENT_BLOCK
+      @slots = SlotRecorder.new(self.class.slots, &@content_block)
       @tag_set = TagSet.new
     end
 
@@ -51,7 +60,7 @@ module HTML
 
     private
 
-    attr_reader :props, :content_block, :tag_set
+    attr_reader :props, :content_block, :tag_set, :slots
 
     def render
       nil

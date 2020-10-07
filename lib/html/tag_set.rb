@@ -22,6 +22,10 @@ module HTML
       comp
     end
 
+    def slot(*_)
+      # Slots are a noop. See SlotRecorder
+    end
+
     def to_s
       Renderer.render(self)
     end
@@ -39,6 +43,30 @@ module HTML
 
     def config(block)
       handle_trailing_content(block.call(self))
+    end
+  end
+
+  class SlotRecorder
+    def initialize(definitions, &block)
+      @slots = {}
+      block.call(self) if block_given?
+    end
+
+    def tag(*_)
+
+    end
+
+    def component(*_)
+
+    end
+
+    def slot(key, content = nil, &block)
+      content ||= TagSet.new(&block)
+      @slots[key] = content
+    end
+
+    def [](key)
+      @slots.fetch(key)
     end
   end
 end

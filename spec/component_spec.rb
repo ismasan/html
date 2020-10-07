@@ -60,12 +60,13 @@ RSpec.describe HTML::Component do
       end
     end
 
+    outer_var = 1
     output = Parent.render(title: 'Parent') do |c|
       c.tag :span, 'Content here'
-      'last'
+      "last #{outer_var}"
     end
 
-    expect(output).to eq(%(<div class="parent"><h1>Parent</h1><p><span>Content here</span>last</p></div>))
+    expect(output).to eq(%(<div class="parent"><h1>Parent</h1><p><span>Content here</span>last 1</p></div>))
   end
 
   specify 'listing arrays' do
@@ -94,5 +95,47 @@ RSpec.describe HTML::Component do
     end
 
     expect(list.render).to eq(%(<p>one</p><p>two</p><p>three</p>trailing))
+  end
+
+  specify 'functional components' do
+    list = described_class.build do |c|
+      tag(:p, 'one')
+      tag(:p, 'two')
+      tag(:p, 'three')
+      content
+    end
+
+    out = list.render do
+      'trailing'
+    end
+    expect(out).to eq(%(<p>one</p><p>two</p><p>three</p>trailing))
+  end
+
+  describe 'slots' do
+    specify 'trancludes slots' do
+      list = Class.new(described_class) do
+        slot :s1
+        slot :s2
+
+        def render
+          tag(:div, slots[:s1], class: 's1')
+          tag(:div, content, class: 'ctn')
+          tag(:div, class: 's2') do |d|
+            slots[:s2]
+          end
+        end
+      end
+
+      out = list.render do |r|
+        r.slot(:s1, 'Slot 1')
+        r.tag(:span, 'Content here')
+        r.slot(:s2) do |s2|
+          s2.tag(:p, 'Slot 2')
+        end
+        'last'
+      end
+
+      expect(out).to eq(%(<div class="s1">Slot 1</div><div class="ctn"><span>Content here</span>last</div><div class="s2"><p>Slot 2</p></div>))
+    end
   end
 end
