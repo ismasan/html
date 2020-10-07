@@ -33,6 +33,8 @@ module HTML
       end
     end
 
+    attr_reader :type, :name, :attributes
+
     def inspect
       %(<#{self.class.name} #{name} #{attributes.inspect} >)
     end
@@ -41,13 +43,7 @@ module HTML
       Renderer.render(self)
     end
 
-    def to_ast
-      raise NotImplementedError, "Implement #{__method__}"
-    end
-
     private
-
-    attr_reader :name, :attributes
 
     def prepare_attributes(attrs)
       attrs.each.with_object({}) do |(k, v), ret|
@@ -59,27 +55,16 @@ module HTML
   class UnaryTag < Tag
     def initialize(name, attributes = {})
       @name, @attributes = name, prepare_attributes(attributes)
-    end
-
-    def to_ast
-      {
-        type: :unary_tag,
-        name: name,
-        attributes: attributes
-      }
+      @type = :unary_tag
     end
   end
 
   class TextNode
+    attr_reader :type
+
     def initialize(txt)
       @txt = txt
-    end
-
-    def to_ast
-      {
-        type: :text_node,
-        content: to_s
-      }
+      @type = :text_node
     end
 
     def to_s
@@ -88,22 +73,12 @@ module HTML
   end
 
   class ContentTag < Tag
+    attr_reader :type, :content
+
     def initialize(name, content, attributes)
       @name, @attributes = name, prepare_attributes(attributes)
       @content = content
+      @type = :content_tag
     end
-
-    def to_ast
-      {
-        type: :content_tag,
-        name: name,
-        attributes: attributes,
-        content: content.to_ast
-      }
-    end
-
-    private
-
-    attr_reader :content
   end
 end

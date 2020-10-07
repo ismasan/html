@@ -2,8 +2,11 @@
 
 module HTML
   class TagSet
+    attr_reader :type, :tags
+
     def initialize(&block)
       @tags = []
+      @type = :tag_set
       config(block) if block_given?
     end
 
@@ -23,20 +26,11 @@ module HTML
       Renderer.render(self)
     end
 
-    def to_ast
-      {
-        type: :tag_set,
-        tags: tags.map(&:to_ast)
-      }
-    end
-
     def inspect
       %(<#{self.class.name} [#{tags.map(&:inspect)}]>)
     end
 
     private
-
-    attr_reader :tags
 
     def config(block)
       ret = block.call(self)

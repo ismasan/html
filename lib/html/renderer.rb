@@ -5,31 +5,32 @@ module HTML
     WHITESPACE = ' '
 
     def self.render(node)
-      new.visit(node.to_ast)
+      new.visit(node)
     end
 
     def visit(node)
-      send("visit_#{node.fetch(:type)}", node)
+      send("visit_#{node.type}", node)
     end
 
     def visit_unary_tag(node)
-      %(<#{node[:name]}#{render_attributes(node[:attributes])} />)
+      %(<#{node.name}#{render_attributes(node.attributes)} />)
     end
 
     def visit_content_tag(node)
-      %(<#{node[:name]}#{render_attributes(node[:attributes])}>#{visit(node[:content])}</#{node[:name]}>)
+      %(<#{node.name}#{render_attributes(node.attributes)}>#{visit(node.content)}</#{node.name}>)
     end
 
     def visit_text_node(node)
-      node[:content]
+      node.to_s
     end
 
     def visit_tag_set(node)
-      node[:tags].map { |tag| visit(tag) }.join
+      node.tags.map { |tag| visit(tag) }.join
     end
 
     def visit_component(node)
-      node[:content] ? visit(node[:content]) : nil
+      ctn = node.render
+      ctn ? visit(ctn) : nil
     end
 
     private

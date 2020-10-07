@@ -22,7 +22,10 @@ module HTML
       new(*args, &block).to_s
     end
 
+    attr_reader :type
+
     def initialize(props = {}, &block)
+      @type = :component
       @props = self.class.props.each.with_object({}) do |(key, opts), ret|
         raise ArgumentError, "expects #{key}" unless props.key?(key)
 
@@ -36,13 +39,8 @@ module HTML
       Renderer.render(self)
     end
 
-    def to_ast
-      ctn = content
-
-      {
-        type: :component,
-        content: render.to_ast
-      }
+    def render
+      nil
     end
 
     private
