@@ -45,6 +45,14 @@ module HTML
       new(*args, &block).to_s
     end
 
+    def self.build(&block)
+      klass = Class.new(self)
+      klass.define_method(:render) do
+        instance_eval(&block)
+      end
+      klass
+    end
+
     attr_reader :type
 
     def initialize(props = {}, &block)
