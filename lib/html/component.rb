@@ -17,6 +17,7 @@ module HTML
 
     NOOP_CONTENT_BLOCK = ->(*) {}
 
+    # ToDO: these class-level lazily defined vars are not thread-safe
     def self.registry
       @registry ||= {}
     end

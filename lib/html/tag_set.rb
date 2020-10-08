@@ -15,19 +15,25 @@ module HTML
     end
 
     def tag(*args, &blk)
-      t = Tag.build(*args, &blk)
-      @tags << t
-      t
+      Tag.build(*args, &blk).tap do |t|
+        @tags << t
+      end
     end
 
     def component(key, *args, &blk)
-      comp = HTML::Component.registry.fetch(key).new(*args, &blk)
-      @tags << comp
-      comp
+      HTML::Component.registry.fetch(key).new(*args, &blk).tap do |comp|
+        @tags << comp
+      end
     end
 
     def slot(*_)
       # Slots are a noop. See SlotRecorder
+    end
+
+    def cache(cache_key, &block)
+      CachedBlock.new(cache_key, &block).tap do |c|
+        @tags << c
+      end
     end
 
     def to_s
@@ -70,6 +76,9 @@ module HTML
     end
 
     def component(*_)
+    end
+
+    def cache(*_)
     end
 
     def slot(key, content = nil, &block)

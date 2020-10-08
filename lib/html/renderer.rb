@@ -4,6 +4,8 @@ module HTML
   class Renderer
     WHITESPACE = ' '
 
+    CACHE = {}
+
     def self.render(node)
       new.visit(node)
     end
@@ -30,6 +32,12 @@ module HTML
 
     def visit_component(node)
       visit(node.children)
+    end
+
+    def visit_cached_block(node)
+      node.fetch_or_render(CACHE) do |uncached_content|
+        visit(uncached_content)
+      end
     end
 
     private
