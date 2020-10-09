@@ -14,23 +14,23 @@ module HTML
       tags.any?
     end
 
-    def tag(*args, &blk)
+    def tag!(*args, &blk)
       Tag.build(*args, &blk).tap do |t|
         @tags << t
       end
     end
 
-    def component(key, *args, &blk)
+    def component!(key, *args, &blk)
       HTML::Component.registry.fetch(key).new(*args, &blk).tap do |comp|
         @tags << comp
       end
     end
 
-    def slot(*_)
+    def slot!(*_)
       # Slots are a noop. See SlotRecorder
     end
 
-    def cache(cache_key, &block)
+    def cache!(cache_key, &block)
       CachedBlock.new(cache_key, &block).tap do |c|
         @tags << c
       end
@@ -45,7 +45,7 @@ module HTML
     end
 
     def handle_trailing_content(ctn)
-      tag(ctn) if ctn != tags.last && (ctn.kind_of?(String) || ctn.respond_to?(:type))
+      tag!(ctn) if ctn != tags.last && (ctn.kind_of?(String) || ctn.respond_to?(:type))
       self
     end
 
@@ -68,20 +68,20 @@ module HTML
       @definitions.each do |key, d|
         next if @slots.key?(key)
 
-        slot(key, &d.default)
+        slot!(key, &d.default)
       end
     end
 
-    def tag(*_)
+    def tag!(*_)
     end
 
-    def component(*_)
+    def component!(*_)
     end
 
-    def cache(*_)
+    def cache!(*_)
     end
 
-    def slot(key, content = nil, &block)
+    def slot!(key, content = nil, &block)
       raise ArgumentError, "slot :#{key} is not registered" unless @definitions.key?(key)
 
       @slots[key] = content || TagSet.new(&block)

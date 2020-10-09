@@ -15,8 +15,8 @@ RSpec.describe HTML::Tag do
 
   specify 'nested tags' do
     tag = HTML.tag(:div, class: 'box') do |c|
-      c.tag(:h1, 'Title')
-      c.tag(:p, 'Paragraph')
+      c.tag!(:h1, 'Title')
+      c.tag!(:p, 'Paragraph')
     end
 
     expect(tag.to_s).to eq(%(<div class="box"><h1>Title</h1><p>Paragraph</p></div>))
@@ -24,7 +24,7 @@ RSpec.describe HTML::Tag do
 
   specify 'handling extra trailing content in block' do
     tag = HTML.tag(:div, class: 'box') do |c|
-      c.tag(:p, 'para')
+      c.tag!(:p, 'para')
       "free text"
     end
 

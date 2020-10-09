@@ -36,10 +36,10 @@ h1 = HTML.tag(:h1, "A title", class: 'title')
 h1.to_s # <h1 class="title">A title</h1>
 
 nested = HTML.tag(:div, class: 'box') do |div|
-  div.tag(:p, 'Paragraph 1')
-  div.tag(:p) do |p|
-    p.tag('Click ')
-    p.tag(:a, 'here', href: 'https://google.com')
+  div.tag!(:p, 'Paragraph 1')
+  div.tag!(:p) do |p|
+    p.tag!('Click ')
+    p.tag!(:a, 'here', href: 'https://google.com')
     '. Some trailing text'
   end
 end
@@ -59,13 +59,13 @@ class UserList < HTML::Component
   prop :users
 
   def render
-    tag :div, class: 'user-list' do |div|
-      div.tag(:h2, props[:title])
-      div.tag(:ul) do |ul|
+    tag! :div, class: 'user-list' do |div|
+      div.tag!(:h2, props[:title])
+      div.tag!(:ul) do |ul|
         props[:users].each do |user|
-          ul.tag(:li) do |li|
-            li.tag(:span, user.name, class: 'user-name')
-            li.tag(:span, user.email, class: 'user-email')
+          ul.tag!(:li) do |li|
+            li.tag!(:span, user.name, class: 'user-name')
+            li.tag!(:span, user.email, class: 'user-email')
           end
         end
       end
@@ -87,16 +87,16 @@ HTML::Component.register(:user_list, UserList)
 
 # Use it in tags
 HTML.tag(:div, class: 'container') do |div|
-  div.component(:user_list, title: 'Title', users: [...])
+  div.component!(:user_list, title: 'Title', users: [...])
 end
 
 # Use it in other components
 
 class Page < HTML::Component
   def render
-    tag(:div, class: 'page') do |div|
+    tag!(:div, class: 'page') do |div|
       ...
-      div.component(:user_list, title: 'Users', users: [...])
+      div.component!(:user_list, title: 'Users', users: [...])
       ...
     end
   end
@@ -110,17 +110,17 @@ Use the special `content` variable within a component's `render` method.
 ```ruby
 class Page < HTML::Component
   def render
-    tag(:div) do |div|
-      div.tag(:h1, 'Page title')
-      div.tag content
-      div.component(:user_list, title: 'Users', users: [...])
+    tag!(:div) do |div|
+      div.tag!(:h1, 'Page title')
+      div.tag! content
+      div.component!(:user_list, title: 'Users', users: [...])
     end
   end
 end
 
 # Nest other content in the component
 Page.render do
-  tag(:p, 'some variable content')
+  tag!(:p, 'some variable content')
   # ... etc
 end
 ```
@@ -133,26 +133,26 @@ class Page < HTML::Component
   slot :footer
 
   def render
-    tag(:div) do |div|
-      div.tag(:div, slots[:header], class: 'header')
-      div.tag content
-      div.tag(:div, slots[:footer], class: 'footer')
+    tag!(:div) do |div|
+      div.tag!(:div, slots[:header], class: 'header')
+      div.tag! content
+      div.tag!(:div, slots[:footer], class: 'footer')
     end
   end
 end
 
 ## Asign content to slots
 Page.render do |page|
-  page.slot(:header) do |header|
-    header.tag(:nav, '...etc')
+  page.slot!(:header) do |header|
+    header.tag!(:nav, '...etc')
   end
-  page.slot(:footer) do |footer|
-    footer.component(:company_info)
-    footer.tag('... etc')
+  page.slot!(:footer) do |footer|
+    footer.component!(:company_info)
+    footer.tag!('... etc')
   end
 
   # Anything here is still assigned to `content`
-  page.tag(:h2, "Content here")
+  page.tag!(:h2, "Content here")
 end
 ```
 
@@ -163,13 +163,13 @@ class UserList < HTML::Component
   prop :users
 
   def render
-    tag(:h1, 'Users')
+    tag!(:h1, 'Users')
     # Russian doll-style caching
-    cache(props[:users].cache_key) do |users|
-      users.tag(:ul) do |ul|
+    cache!(props[:users].cache_key) do |users|
+      users.tag!(:ul) do |ul|
         props[:users].each do |user|
-          user.cache(user.cache_key) do |c|
-            c.component(:user_row, user: user)
+          user.cache!(user.cache_key) do |c|
+            c.component!(:user_row, user: user)
           end
         end
       end
