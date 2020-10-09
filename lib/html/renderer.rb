@@ -15,11 +15,11 @@ module HTML
     end
 
     def visit_unary_tag(node)
-      %(<#{node.name}#{render_attributes(node.attributes)} />)
+      String.new('<') << node.name.to_s << render_attributes(node.attributes) << ' />'
     end
 
     def visit_content_tag(node)
-      %(<#{node.name}#{render_attributes(node.attributes)}>#{visit(node.content)}</#{node.name}>)
+      String.new('<') << node.name.to_s << render_attributes(node.attributes) << '>' << visit(node.content) << '</' << node.name.to_s << '>'
     end
 
     def visit_text_node(node)
