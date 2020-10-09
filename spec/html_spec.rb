@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 RSpec.describe HTML::Tag do
   specify 'simple self-closing tag' do
     tag = HTML.tag(:br)

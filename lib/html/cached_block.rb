@@ -11,13 +11,9 @@ module HTML
     end
 
     def fetch_or_render(store, &on_uncached)
-      if content = store[cache_key]
-        return content
-      else
+      store.fetch(cache_key) do
         uncached_content = TagSet.new(&content_block)
-        content = on_uncached.call(uncached_content)
-        store[cache_key] = content
-        content
+        on_uncached.call(uncached_content)
       end
     end
 

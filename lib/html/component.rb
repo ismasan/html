@@ -70,7 +70,7 @@ module HTML
     end
 
     def to_s
-      Renderer.render(self)
+      HTML.renderer.render(self)
     end
 
     def children

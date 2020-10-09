@@ -158,42 +158,51 @@ RSpec.describe HTML::Component do
     end
   end
 
-  specify 'fragment caching' do
-    increment = Class.new do
-      def initialize
-        @count = 0
-      end
-
-      def run
-        @count += 1
-      end
+  context 'fragment caching' do
+    around do |example|
+      prev_store = HTML.cache_store
+      HTML.cache_store = HTML::InMemCache.new
+      example.run
+      HTML.cache_store = prev_store
     end
 
-    user_class = Struct.new(:name, :cache_key)
+    it 'caches fragments' do
+      increment = Class.new do
+        def initialize
+          @count = 0
+        end
 
-    component = Class.new(described_class) do
-      prop :user
-      prop :increment
+        def run
+          @count += 1
+        end
+      end
 
-      def render
-        tag(:div, class: 'box') do |box|
-          box.tag(:h1, props[:user].name)
-          box.cache(props[:user].cache_key) do |c|
-            c.tag :span, props[:increment].run
+      user_class = Struct.new(:name, :cache_key)
+
+      component = Class.new(described_class) do
+        prop :user
+        prop :increment
+
+        def render
+          tag(:div, class: 'box') do |box|
+            box.tag(:h1, props[:user].name)
+            box.cache(props[:user].cache_key) do |c|
+              c.tag :span, props[:increment].run
+            end
           end
         end
       end
+
+      incr = increment.new
+
+      out1 = component.render(user: user_class.new('Ismael', 'aa'), increment: incr)
+      expect(out1).to eq(%(<div class="box"><h1>Ismael</h1><span>1</span></div>))
+
+      out2 = component.render(user: user_class.new('Joe', 'aa'), increment: incr)
+      expect(out2).to eq(%(<div class="box"><h1>Joe</h1><span>1</span></div>))
+
+      out3 = component.render(user: user_class.new('Ismael', 'bb'), increment: incr)
+      expect(out3).to eq(%(<div class="box"><h1>Ismael</h1><span>2</span></div>))
     end
-
-    incr = increment.new
-
-    out1 = component.render(user: user_class.new('Ismael', 'aa'), increment: incr)
-    expect(out1).to eq(%(<div class="box"><h1>Ismael</h1><span>1</span></div>))
-
-    out2 = component.render(user: user_class.new('Joe', 'aa'), increment: incr)
-    expect(out2).to eq(%(<div class="box"><h1>Joe</h1><span>1</span></div>))
-
-    out3 = component.render(user: user_class.new('Ismael', 'bb'), increment: incr)
-    expect(out3).to eq(%(<div class="box"><h1>Ismael</h1><span>2</span></div>))
   end
 end
