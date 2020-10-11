@@ -15,6 +15,8 @@ module HTML
 
   class Tag
     def self.build(*args, &block)
+      return args.first if args.first.kind_of?(Component) || args.first.kind_of?(Tag)
+
       attributes = args.last.kind_of?(Hash) ? args.pop : {}
       if args.first.is_a?(Symbol) # tag name
         name = args.shift
