@@ -2,7 +2,7 @@
 
 module HTML
   class CachedBlock
-    attr_reader :type
+    attr_reader :type, :cache_key
 
     def initialize(cache_key, &content_block)
       @cache_key = cache_key.respond_to?(:cache_key) ? cache_key.cache_key : cache_key
@@ -12,13 +12,16 @@ module HTML
 
     def fetch_or_render(store, &on_uncached)
       store.fetch(cache_key) do
-        uncached_content = TagSet.new(&content_block)
-        on_uncached.call(uncached_content)
+        on_uncached.call(children)
       end
+    end
+
+    def children
+      @children ||= TagSet.new(&content_block)
     end
 
     private
 
-    attr_reader :cache_key, :content_block
+    attr_reader :content_block
   end
 end
