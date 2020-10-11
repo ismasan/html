@@ -21,12 +21,13 @@ module HTML
         return UnaryTag.new(name, attributes) unless args.any? || block_given?
 
         content = if block_given?
-                    TagSet.new(&block)
-                  elsif args.respond_to?(:to_s)
-                    TextNode.new(args.first)
-                  else
-                    raise ArgumentError, "Can't use #{args.first} as tag content, must respond to #to_s"
-                  end
+          TagSet.new(&block)
+        elsif args.first.respond_to?(:to_s)
+          TextNode.new(args.first)
+        else
+          raise ArgumentError, "Can't use #{args.first} as tag content, must respond to #to_s"
+        end
+
         ContentTag.new(name, content, attributes)
       elsif args.first.respond_to?(:to_s)
         TextNode.new(args.first)
