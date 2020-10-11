@@ -45,7 +45,7 @@ module HTML
       end
 
       def visit_tag_set(node)
-        node.tags.map { |tag| visit(tag) }.join
+        node.children.map { |tag| visit(tag) }.join
       end
 
       def visit_component(node)

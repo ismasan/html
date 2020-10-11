@@ -2,27 +2,27 @@
 
 module HTML
   class TagSet
-    attr_reader :type, :tags
+    attr_reader :type, :children
 
     def initialize(&block)
-      @tags = []
+      @children = []
       @type = :tag_set
       config(block) if block_given?
     end
 
     def any?
-      tags.any?
+      children.any?
     end
 
     def tag!(*args, &blk)
       Tag.build(*args, &blk).tap do |t|
-        @tags << t
+        @children << t
       end
     end
 
     def component!(key, *args, &blk)
       HTML::Component.registry.fetch(key).new(*args, &blk).tap do |comp|
-        @tags << comp
+        @children << comp
       end
     end
 
@@ -32,7 +32,7 @@ module HTML
 
     def cache!(cache_key, &block)
       CachedBlock.new(cache_key, &block).tap do |c|
-        @tags << c
+        @children << c
       end
     end
 
@@ -41,11 +41,11 @@ module HTML
     end
 
     def inspect
-      %(<#{self.class.name} [#{tags.map(&:inspect)}]>)
+      %(<#{self.class.name} [#{children.map(&:inspect)}]>)
     end
 
     def handle_trailing_content(ctn)
-      tag!(ctn) if ctn != tags.last && (ctn.kind_of?(String) || ctn.respond_to?(:type))
+      tag!(ctn) if ctn != children.last && (ctn.kind_of?(String) || ctn.respond_to?(:type))
       self
     end
 
