@@ -3,6 +3,7 @@
 RSpec.describe HTML::Component do
   specify do
     input = Class.new(described_class) do
+      name :input
       prop :name
       prop :value
 
@@ -13,7 +14,7 @@ RSpec.describe HTML::Component do
       end
     end
 
-    HTML::Component.register(:input, input)
+    HTML::Component.register(input)
 
     row = Class.new(described_class) do
       def render

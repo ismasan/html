@@ -6,12 +6,12 @@ module HTML
       attr_reader :default
       def initialize(default: nil, &default_block)
         @default = if default
-                     default.respond_to?(:call) ? default : ->(_) { default }
-                   elsif block_given?
-                     default_block
-                   else
-                     nil
-                   end
+          default.respond_to?(:call) ? default : ->(_) { default }
+        elsif block_given?
+          default_block
+        else
+          nil
+        end
       end
     end
 
@@ -22,8 +22,13 @@ module HTML
       @registry ||= {}
     end
 
-    def self.register(key, constructor)
-      registry[key] = constructor
+    def self.register(constructor)
+      registry[constructor.name] = constructor
+    end
+
+    def self.name(n = nil)
+      @name = n if n
+      @name || super()
     end
 
     def self.props
@@ -54,10 +59,11 @@ module HTML
       klass
     end
 
-    attr_reader :type
+    attr_reader :type, :name, :props
 
     def initialize(props = {}, &block)
       @type = :component
+      @name = self.class.name
       @props = self.class.props.each.with_object({}) do |(key, opts), ret|
         raise ArgumentError, "expects #{key}" unless props.key?(key)
 
@@ -82,7 +88,7 @@ module HTML
 
     private
 
-    attr_reader :props, :content_block, :tag_set, :slots
+    attr_reader :content_block, :tag_set, :slots
 
     def render
       nil
