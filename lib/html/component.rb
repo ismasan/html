@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'concurrent/hash'
+
 module HTML
   class Component
     class Slot
@@ -16,10 +18,11 @@ module HTML
     end
 
     NOOP_CONTENT_BLOCK = ->(*) {}
+    REGISTRY = Concurrent::Hash.new
 
     # ToDO: these class-level lazily defined vars are not thread-safe
     def self.registry
-      @registry ||= {}
+      REGISTRY
     end
 
     def self.register(constructor)
