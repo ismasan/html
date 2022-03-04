@@ -8,8 +8,8 @@ RSpec.describe HTML::Component do
       prop :value
 
       def render
-        tag! :div, class: 'input' do |c|
-          c.tag! :input, type: 'text', name: props[:name], value: props[:value]
+        tag :div, class: 'input' do |c|
+          c.tag :input, type: 'text', name: props[:name], value: props[:value]
         end
       end
     end
@@ -18,8 +18,8 @@ RSpec.describe HTML::Component do
 
     row = Class.new(described_class) do
       def render
-        tag! :div, class: 'row' do |c|
-          c.component! :input, name: 'email', value: 'lol@ca.cl'
+        tag :div, class: 'row' do |c|
+          c.component :input, name: 'email', value: 'lol@ca.cl'
         end
       end
     end
@@ -51,11 +51,11 @@ RSpec.describe HTML::Component do
       prop :title
 
       def render
-        tag! :div, class: 'parent' do |c|
-          c.tag! :h1, props[:title]
-          c.tag! :p do |c|
-            c.tag! content
-            c.tag!(:small, 'smallprint')
+        tag :div, class: 'parent' do |c|
+          c.tag :h1, props[:title]
+          c.tag :p do |c|
+            c.tag content
+            c.tag(:small, 'smallprint')
           end
         end
       end
@@ -63,14 +63,14 @@ RSpec.describe HTML::Component do
 
     outer_var = 1
     output = component.render(title: 'Parent') do |c|
-      c.tag! :span, 'Content here'
+      c.tag :span, 'Content here'
       "last #{outer_var}"
     end
 
     expect(output).to eq(%(<div class="parent"><h1>Parent</h1><p><span>Content here</span>last 1<small>smallprint</small></p></div>))
 
     output = component.render(title: 'Parent') do
-      tag! :span, 'private block'
+      tag :span, 'private block'
       "last #{outer_var}"
     end
 
@@ -81,9 +81,9 @@ RSpec.describe HTML::Component do
     contact_list = Class.new(described_class) do
       prop :contacts
       def render
-        tag!(:ul, class: 'contacts') do |ul|
+        tag(:ul, class: 'contacts') do |ul|
           props[:contacts].each do |contact|
-            ul.tag!(:li, contact)
+            ul.tag(:li, contact)
           end
         end
       end
@@ -95,9 +95,9 @@ RSpec.describe HTML::Component do
   specify 'a component with multiple content tags' do
     list = Class.new(described_class) do
       def render
-        tag!(:p, 'one')
-        tag!(:p, 'two')
-        tag!(:p, 'three')
+        tag(:p, 'one')
+        tag(:p, 'two')
+        tag(:p, 'three')
         'trailing'
       end
     end
@@ -107,9 +107,9 @@ RSpec.describe HTML::Component do
 
   specify 'functional components' do
     list = described_class.build do |c|
-      tag!(:p, 'one')
-      tag!(:p, 'two')
-      tag!(:p, 'three')
+      tag(:p, 'one')
+      tag(:p, 'two')
+      tag(:p, 'three')
       content
     end
 
@@ -124,13 +124,13 @@ RSpec.describe HTML::Component do
       Class.new(described_class) do
         slot :s1
         slot :s2 do |t|
-          t.tag!(:span, 'Default')
+          t.tag(:span, 'Default')
         end
 
         def render
-          tag!(:div, slots[:s1], class: 's1')
-          tag!(:div, content, class: 'ctn') if content.any?
-          tag!(:div, class: 's2') do |d|
+          tag(:div, slots[:s1], class: 's1')
+          tag(:div, content, class: 'ctn') if content.any?
+          tag(:div, class: 's2') do |d|
             slots[:s2]
           end
         end
@@ -139,10 +139,10 @@ RSpec.describe HTML::Component do
 
     specify 'trancludes slots' do
       out = component.render do |r|
-        r.slot!(:s1, 'Slot 1')
-        r.tag!(:span, 'Content here')
-        r.slot!(:s2) do |s2|
-          s2.tag!(:p, 'Slot 2')
+        r.slot(:s1, 'Slot 1')
+        r.tag(:span, 'Content here')
+        r.slot(:s2) do |s2|
+          s2.tag(:p, 'Slot 2')
         end
         'last'
       end
@@ -152,7 +152,7 @@ RSpec.describe HTML::Component do
 
     specify 'fills in slot defaults' do
       out = component.render do |r|
-        r.slot!(:s1, 'Slot 1')
+        r.slot(:s1, 'Slot 1')
       end
 
       expect(out).to eq(%(<div class="s1">Slot 1</div><div class="s2"><span>Default</span></div>))
@@ -185,10 +185,10 @@ RSpec.describe HTML::Component do
         prop :increment
 
         def render
-          tag!(:div, class: 'box') do |box|
-            box.tag!(:h1, props[:user].name)
-            box.cache!(props[:user].cache_key) do |c|
-              c.tag! :span, props[:increment].run
+          tag(:div, class: 'box') do |box|
+            box.tag(:h1, props[:user].name)
+            box.cache(props[:user].cache_key) do |c|
+              c.tag :span, props[:increment].run
             end
           end
         end

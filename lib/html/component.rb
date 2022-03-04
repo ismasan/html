@@ -98,13 +98,13 @@ module HTML
       @content ||= TagSet.new(&content_block)
     end
 
-    def tag!(*args, &block)
-      tag_set.tag!(*args, &block)
+    def tag(*args, &block)
+      tag_set.tag(*args, &block)
       # HTML.tag(*args, &block)
     end
 
-    def component!(*args, &block)
-      tag_set.component!(*args, &block)
+    def component(*args, &block)
+      tag_set.component(*args, &block)
     end
   end
 end
