@@ -4,7 +4,7 @@ RSpec.describe HTML::Component do
   specify do
     input = Class.new(described_class) do
       name :input
-      prop :name
+      prop :name, default: 'correo'
       prop :value
 
       def render
@@ -23,6 +23,8 @@ RSpec.describe HTML::Component do
     end
 
     expect(input.render(name: 'email', value: 'email@me.cl')).to eq(%(<div class="input"><input type="text" name="email" value="email@me.cl" /></div>))
+    # Default prop values
+    expect(input.render(value: 'email@me.cl')).to eq(%(<div class="input"><input type="text" name="correo" value="email@me.cl" /></div>))
     expect(row.render).to eq(%(<div class="row"><div class="input"><input type="text" name="email" value="lol@ca.cl" /></div></div>))
   end
 

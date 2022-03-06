@@ -71,9 +71,9 @@ module HTML
       @type = :component
       @name = self.class.name
       @props = self.class.props.each.with_object({}) do |(key, opts), ret|
-        raise ArgumentError, "expects #{key}" unless props.key?(key)
+        raise ArgumentError, "expects #{key}" if !props.key?(key) && !opts.key?(:default)
 
-        ret[key] = props[key]
+        ret[key] = props.fetch(key, opts[:default])
       end
 
       @content_block = block_given? ? block : NOOP_CONTENT_BLOCK
