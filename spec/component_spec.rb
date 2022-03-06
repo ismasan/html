@@ -83,7 +83,7 @@ RSpec.describe HTML::Component do
       def render
         tag(:ul, class: 'contacts') do |ul|
           props[:contacts].each do |contact|
-            ul.tag(:li, contact)
+            ul.li contact
           end
         end
       end
@@ -107,16 +107,18 @@ RSpec.describe HTML::Component do
 
   specify 'functional components' do
     list = described_class.build do |c|
-      tag(:p, 'one')
-      tag(:p, 'two')
-      tag(:p, 'three')
+      c.p 'one'
+      c.p 'two'
+      c.p do |t|
+        t.strong 'three'
+      end
       content
     end
 
     out = list.render do
       'trailing'
     end
-    expect(out).to eq(%(<p>one</p><p>two</p><p>three</p>trailing))
+    expect(out).to eq(%(<p>one</p><p>two</p><p><strong>three</strong></p>trailing))
   end
 
   describe 'slots' do

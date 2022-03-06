@@ -17,11 +17,25 @@ RSpec.describe HTML::Tag do
 
   specify 'nested tags' do
     tag = HTML.tag(:div, class: 'box') do |c|
-      c.tag(:h1, 'Title')
-      c.tag(:p, 'Paragraph')
+      c.h1 'Title'
+      c.p 'Paragraph'
     end
 
     expect(tag.to_s).to eq(%(<div class="box"><h1>Title</h1><p>Paragraph</p></div>))
+  end
+
+  it 'creates methods for tags' do
+    expect(HTML::Proxy.instance_methods.include?(:table)).to be(false)
+    expect(HTML::Proxy.instance_methods.include?(:td)).to be(false)
+    tag = HTML.tag(:div, class: 'box') do |c|
+      c.table do |t|
+        t.tr do |t|
+          t.td 'row1'
+        end
+      end
+    end
+    expect(HTML::Proxy.instance_methods.include?(:table)).to be(true)
+    expect(HTML::Proxy.instance_methods.include?(:td)).to be(true)
   end
 
   specify 'handling extra trailing content in block' do

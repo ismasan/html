@@ -57,7 +57,7 @@ module HTML
     def self.build(&block)
       klass = Class.new(self)
       klass.define_method(:render) do
-        instance_eval(&block)
+        instance_exec(tag_set.proxy, &block)
       end
       klass
     end
@@ -103,7 +103,6 @@ module HTML
 
     def tag(*args, &block)
       tag_set.tag(*args, &block)
-      # HTML.tag(*args, &block)
     end
 
     def component(*args, &block)

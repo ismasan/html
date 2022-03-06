@@ -1,12 +1,60 @@
 # frozen_string_literal: true
 
 module HTML
+  class Proxy < BasicObject
+    P_COMPONENT_METHOD = <<~EOF
+      def %<name>s(*args, &block)
+        @tagset.component(:%<name>s, *args, &block)
+      end
+    EOF
+    P_TAG_METHOD = <<~EOF
+      def %<name>s(*args, &block)
+        @tagset.tag(:%<name>s, *args, &block)
+      end
+    EOF
+
+    def initialize(tagset)
+      @tagset = tagset
+    end
+
+    def tag(...)
+      @tagset.tag(...)
+    end
+
+    def component(...)
+      @tagset.component(...)
+    end
+
+    def slot(...)
+      @tagset.slot(...)
+    end
+
+    def cache(...)
+      @tagset.cache(...)
+    end
+
+    # #div(id: 'aa') do |t|
+    #   t.h1 'title'
+    # end
+    def method_missing(name, *args, &block)
+      code = if ::HTML::Component.registry.key?(name)
+        P_COMPONENT_METHOD % { name: name }
+      else
+        P_TAG_METHOD % { name: name }
+      end
+
+      Proxy.class_eval(code, __FILE__, __LINE__)
+      __send__(name, *args, &block)
+    end
+  end
+
   class TagSet
-    attr_reader :type, :children
+    attr_reader :type, :children, :proxy
 
     def initialize(&block)
       @children = []
       @type = :tag_set
+      @proxy = Proxy.new(self)
       config(block) if block_given?
     end
 
@@ -52,7 +100,7 @@ module HTML
     private
 
     def config(block)
-      output = block.arity == 0 ? instance_eval(&block) : block.call(self)
+      output = block.arity == 0 ? @proxy.instance_eval(&block) : block.call(@proxy)
       handle_trailing_content(output)
     end
   end
