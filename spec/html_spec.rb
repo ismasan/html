@@ -24,6 +24,14 @@ RSpec.describe HTML::Tag do
     expect(tag.to_s).to eq(%(<div class="box"><h1>Title</h1><p>Paragraph</p></div>))
   end
 
+  specify ':html5 tag' do
+    tag = HTML.tag(:html5) do |c|
+      c.head
+      c.body id: 'box'
+    end
+    expect(tag.to_s).to eq(%(<!DOCTYPE html>\n<html><head></head><body id="box"></body></html>))
+  end
+
   it 'creates methods for tags' do
     expect(HTML::Proxy.instance_methods.include?(:table)).to be(false)
     expect(HTML::Proxy.instance_methods.include?(:td)).to be(false)

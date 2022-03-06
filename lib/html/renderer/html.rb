@@ -6,6 +6,7 @@ module HTML
   class Renderer
     class Html < Renderer
       WHITESPACE = ' '
+      HTML5 = "<!DOCTYPE html>\n<html"
       UNARY_TAGS = %i[
         area
         base
@@ -29,7 +30,12 @@ module HTML
         if UNARY_TAGS.include?(node.name)
           String.new('<') << node.name.to_s << render_attributes(node.attributes) << ' />'
         else
-          String.new('<') << node.name.to_s << render_attributes(node.attributes) << '>' << visit(node.content) << '</' << node.name.to_s << '>'
+          case node.name
+          when :html5
+            String.new(HTML5) << render_attributes(node.attributes) << '>' << visit(node.content) << '</html>'
+          else
+            String.new('<') << node.name.to_s << render_attributes(node.attributes) << '>' << visit(node.content) << '</' << node.name.to_s << '>'
+          end
         end
       end
 
