@@ -6,6 +6,8 @@ RSpec.describe HTML::Tag do
   specify 'simple self-closing tag' do
     tag = HTML.tag(:br)
     expect(tag.to_s).to eq(%(<br />))
+    tag = HTML.tag(:link, rel: 'stylesheet')
+    expect(tag.to_s).to eq(%(<link rel="stylesheet" />))
   end
 
   specify 'tag with content and attributes' do

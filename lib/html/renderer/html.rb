@@ -6,15 +6,31 @@ module HTML
   class Renderer
     class Html < Renderer
       WHITESPACE = ' '
+      UNARY_TAGS = %i[
+        area
+        base
+        br
+        col
+        embed
+        hr
+        img
+        input
+        link
+        meta
+        param
+        source
+        track
+        wbr
+      ].freeze
 
       private
 
-      def visit_unary_tag(node)
-        String.new('<') << node.name.to_s << render_attributes(node.attributes) << ' />'
-      end
-
       def visit_content_tag(node)
-        String.new('<') << node.name.to_s << render_attributes(node.attributes) << '>' << visit(node.content) << '</' << node.name.to_s << '>'
+        if UNARY_TAGS.include?(node.name)
+          String.new('<') << node.name.to_s << render_attributes(node.attributes) << ' />'
+        else
+          String.new('<') << node.name.to_s << render_attributes(node.attributes) << '>' << visit(node.content) << '</' << node.name.to_s << '>'
+        end
       end
 
       def visit_text_node(node)

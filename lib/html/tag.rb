@@ -20,7 +20,6 @@ module HTML
       attributes = args.last.kind_of?(Hash) ? args.pop : {}
       if args.first.is_a?(Symbol) # tag name
         name = args.shift
-        return UnaryTag.new(name, attributes) unless args.any? || block_given?
 
         content = if block_given?
           TagSet.new(&block)
@@ -52,13 +51,6 @@ module HTML
       attrs.each.with_object({}) do |(k, v), ret|
         ret[k] = [v].flatten
       end
-    end
-  end
-
-  class UnaryTag < Tag
-    def initialize(name, attributes = {})
-      @name, @attributes = name, prepare_attributes(attributes)
-      @type = :unary_tag
     end
   end
 
