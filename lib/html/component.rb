@@ -30,7 +30,10 @@ module HTML
     end
 
     def self.name(n = nil)
-      @name = n if n
+      if n
+        @name = n
+        registry[name.to_sym] = self
+      end
       @name || super()
     end
 
