@@ -105,22 +105,6 @@ RSpec.describe HTML::Component do
     expect(list.render).to eq(%(<p>one</p><p>two</p><p>three</p>trailing))
   end
 
-  specify 'functional components' do
-    list = described_class.build do |c|
-      c.p 'one'
-      c.p 'two'
-      c.p do |t|
-        t.strong 'three'
-      end
-      content
-    end
-
-    out = list.render do
-      'trailing'
-    end
-    expect(out).to eq(%(<p>one</p><p>two</p><p><strong>three</strong></p>trailing))
-  end
-
   specify '.define' do
     described_class.define(:warning) do |c, props|
       c.span class: 'warning' do |t|
