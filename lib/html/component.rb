@@ -104,12 +104,8 @@ module HTML
       @content ||= TagSet.new(&content_block)
     end
 
-    def tag(*args, &block)
-      tag_set.tag(*args, &block)
-    end
-
-    def component(*args, &block)
-      tag_set.component(*args, &block)
+    def builder
+      @tag_set.proxy
     end
   end
 end

@@ -138,5 +138,11 @@ module HTML
     def [](key)
       @slots.fetch(key)
     end
+
+    # Ignore any other tag names for now
+    # This is not optimal
+    def method_missing(...)
+
+    end
   end
 end
