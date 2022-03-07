@@ -121,6 +121,21 @@ RSpec.describe HTML::Component do
     expect(out).to eq(%(<p>one</p><p>two</p><p><strong>three</strong></p>trailing))
   end
 
+  specify '.define' do
+    described_class.define(:warning) do |c, props|
+      c.span class: 'warning' do |t|
+        t.strong props[:label]
+      end
+    end
+    tag = described_class.define(:top) do |c, props|
+      c.div do |t|
+        t.warning props
+      end
+    end
+
+    expect(tag.render(label: 'Achtung!')).to eq(%(<div><span class="warning"><strong>Achtung!</strong></span></div>))
+  end
+
   describe 'slots' do
     let!(:component) do
       Class.new(described_class) do

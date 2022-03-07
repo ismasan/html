@@ -60,7 +60,16 @@ module HTML
     def self.build(&block)
       klass = Class.new(self)
       klass.define_method(:render) do
-        instance_exec(tag_set.proxy, &block)
+        instance_exec(builder, &block)
+      end
+      klass
+    end
+
+    def self.define(name, &block)
+      klass = Class.new(self)
+      klass.name(name)
+      klass.define_method(:render) do
+        instance_exec(builder, props, &block)
       end
       klass
     end
@@ -70,12 +79,7 @@ module HTML
     def initialize(props = {}, &block)
       @type = :component
       @name = self.class.name
-      @props = self.class.props.each.with_object({}) do |(key, opts), ret|
-        raise ArgumentError, "expects #{key}" if !props.key?(key) && !opts.key?(:default)
-
-        ret[key] = props.fetch(key, opts[:default])
-      end
-
+      @props = resolve_props(props)
       @content_block = block_given? ? block : NOOP_CONTENT_BLOCK
       @slots = SlotRecorder.new(self.class.slots, &@content_block)
       @tag_set = TagSet.new
@@ -106,6 +110,17 @@ module HTML
 
     def builder
       @tag_set.proxy
+    end
+
+    def resolve_props(props)
+      # Functional components take any props
+      return props unless self.class.props.any?
+
+      self.class.props.each.with_object({}) do |(key, opts), ret|
+        raise ArgumentError, "expects #{key}" if !props.key?(key) && !opts.key?(:default)
+
+        ret[key] = props.fetch(key, opts[:default])
+      end
     end
   end
 end
