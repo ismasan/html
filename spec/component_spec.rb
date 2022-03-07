@@ -106,12 +106,12 @@ RSpec.describe HTML::Component do
   end
 
   specify '.define' do
-    described_class.define(:warning) do |c, props|
+    HTML.define(:warning) do |c, props|
       c.span class: 'warning' do |t|
         t.strong props[:label]
       end
     end
-    tag = described_class.define(:top) do |c, props|
+    tag = HTML.define(:top) do |c, props|
       c.div do |t|
         t.warning props
       end

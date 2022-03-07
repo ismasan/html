@@ -3,6 +3,10 @@
 require 'concurrent/hash'
 
 module HTML
+  def self.define(...)
+    Component.define(...)
+  end
+
   class Component
     class Slot
       attr_reader :default
