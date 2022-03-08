@@ -36,10 +36,10 @@ h1 = HTML.tag(:h1, "A title", class: 'title')
 h1.to_s # <h1 class="title">A title</h1>
 
 nested = HTML.tag(:div, class: 'box') do |div|
-  div.tag(:p, 'Paragraph 1')
-  div.tag(:p) do |p|
+  div.p 'Paragraph 1'
+  div.p do |p|
     p.tag('Click ')
-    p.tag(:a, 'here', href: 'https://google.com')
+    p.a 'here', href: 'https://google.com'
     '. Some trailing text'
   end
 end
@@ -59,13 +59,13 @@ class UserList < HTML::Component
   prop :users
 
   def render
-    tag :div, class: 'user-list' do |div|
-      div.tag(:h2, props[:title])
-      div.tag(:ul) do |ul|
+    builder.div class: 'user-list' do |div|
+      div.h2 props[:title]
+      div.ul do |ul|
         props[:users].each do |user|
-          ul.tag(:li) do |li|
-            li.tag(:span, user.name, class: 'user-name')
-            li.tag(:span, user.email, class: 'user-email')
+          ul.li do |li|
+            li.span user.name, class: 'user-name'
+            li.span user.email, class: 'user-email'
           end
         end
       end
@@ -80,25 +80,74 @@ UserList.new(title: '...', users: [...]).to_s
 
 #### Registering components
 
-Registering components with `HTML::Component.register` allows you to reuse components from within other components or even tags.
+Components are registered in `HTML.registry` by declaring their `.name`.
+Registered components can be used as regular tags in other components or tags.
 
 ```ruby
-HTML::Component.register(:user_list, UserList)
+class UserList < HTML::Component
+  name :user_list
+  # ...etc
+end
 
 # Use it in tags
 HTML.tag(:div, class: 'container') do |div|
-  div.component(:user_list, title: 'Title', users: [...])
+  div.user_list title: 'Title', users: [...]
 end
 
 # Use it in other components
 
 class Page < HTML::Component
   def render
-    tag(:div, class: 'page') do |div|
+    builder.div class: 'page' do |div|
       ...
-      div.component(:user_list, title: 'Users', users: [...])
+      div.user_list title: 'Users', users: [...]
       ...
     end
+  end
+end
+```
+
+This means that you can also override default tags:
+
+```ruby
+class Input < HTML::Component
+  name :input
+  prop :name
+  prop :value
+  prop :type, default: 'text'
+
+  def render
+    builder.span class: 'custom-input' do |span|
+      span.input props
+    end
+  end
+end
+
+# Use it everywhere
+
+HTML.tag(:form) do |form|
+  form.input type: 'text', name: 'name', value: 'joe'
+end
+```
+
+#### Functional components
+
+Alternatively you can register procs as light-weight components.
+
+```ruby
+# The block gets yielded a tag builder and props Hash
+HTML.define(:badge) do |t, props|
+  t.label class: ['badge', "badge-#{props[:color]}"], id: props[:id] do |label|
+    label.span props[:text]
+  end
+end
+
+# Use it in other tags or components
+HTML.define(:user_card) do |t, props|
+  user = props[:user]
+
+  t.div class: 'user-card' do |t|
+    t.badge text: user.name, color: user.status, id: user.id
   end
 end
 ```
@@ -110,17 +159,17 @@ Use the special `content` variable within a component's `render` method.
 ```ruby
 class Page < HTML::Component
   def render
-    tag(:div) do |div|
-      div.tag(:h1, 'Page title')
+    builder.div do |div|
+      div.h1, 'Page title'
       div.tag content
-      div.component(:user_list, title: 'Users', users: [...])
+      div.user_list, title: 'Users', users: [...]
     end
   end
 end
 
 # Nest other content in the component
-Page.render do
-  tag(:p, 'some variable content')
+Page.render do |c|
+  c.p 'some variable content'
   # ... etc
 end
 ```
@@ -133,26 +182,26 @@ class Page < HTML::Component
   slot :footer
 
   def render
-    tag(:div) do |div|
-      div.tag(:div, slots[:header], class: 'header')
+    builder.div do |div|
+      div.div slots[:header], class: 'header'
       div.tag content
-      div.tag(:div, slots[:footer], class: 'footer')
+      div.div slots[:footer], class: 'footer'
     end
   end
 end
 
 ## Asign content to slots
 Page.render do |page|
-  page.slot!(:header) do |header|
-    header.tag(:nav, '...etc')
+  page.slot(:header) do |header|
+    header.nav '...etc'
   end
-  page.slot!(:footer) do |footer|
-    footer.component(:company_info)
+  page.slot(:footer) do |footer|
+    footer.company_info
     footer.tag('... etc')
   end
 
   # Anything here is still assigned to `content`
-  page.tag(:h2, "Content here")
+  page.h2 "Content here"
 end
 ```
 
@@ -163,13 +212,13 @@ class UserList < HTML::Component
   prop :users
 
   def render
-    tag(:h1, 'Users')
+    builder.h1, 'Users'
     # Russian doll-style caching
-    cache(props[:users].cache_key) do |users|
-      users.tag(:ul) do |ul|
+    builder.cache(props[:users].cache_key) do |users|
+      users.ul do |ul|
         props[:users].each do |user|
           user.cache(user.cache_key) do |c|
-            c.component(:user_row, user: user)
+            c.user_row user: user
           end
         end
       end
