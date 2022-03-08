@@ -161,7 +161,7 @@ class Page < HTML::Component
   def render
     builder.div do |div|
       div.h1, 'Page title'
-      div.tag content
+      div << content
       div.user_list, title: 'Users', users: [...]
     end
   end
@@ -174,6 +174,26 @@ Page.render do |c|
 end
 ```
 
+#### Components as props
+
+Another way to nest content is to pass component instances as _props_.
+
+```ruby
+Layout = HTML.define(:layout) do |layout, props|
+  layout.body do |b|
+    b.div class: 'sidebar' do |s|
+      # inject a sidebar component prop here
+      s << props[:sidebar]
+    end
+  end
+end
+
+# Render the layout passing a component instance for the sidebar
+Layout.render(
+  sidebar: ProductsSidebar.new(...)
+)
+```
+
 #### Content slots
 
 ```ruby
@@ -184,7 +204,7 @@ class Page < HTML::Component
   def render
     builder.div do |div|
       div.div slots[:header], class: 'header'
-      div.tag content
+      div << content
       div.div slots[:footer], class: 'footer'
     end
   end
