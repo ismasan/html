@@ -10,6 +10,7 @@ module HTML
   class Component
     extend InheritableClassSettings
     def_settings :props
+    def_settings :slots
 
     class Slot
       attr_reader :default
@@ -60,10 +61,6 @@ module HTML
 
     def self.prop(key, **opts, &transform)
       props[key] = Prop.new(**opts, &transform)
-    end
-
-    def self.slots
-      @slots ||= {}
     end
 
     def self.slot(key, **opts, &default)
