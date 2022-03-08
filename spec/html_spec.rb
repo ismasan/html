@@ -22,6 +22,16 @@ RSpec.describe HTML::Tag do
     expect(tag.to_s).to eq(%(<input type="checkbox" name="foo" />))
   end
 
+  specify 'Hash attributes' do
+    tag = HTML.tag(:strong, 'hello', data: { foo: 1, bar: 'lol' })
+    expect(tag.to_s).to eq(%(<strong data-foo="1" data-bar="lol">hello</strong>))
+  end
+
+  specify 'Hash attributes' do
+    tag = HTML.tag(:strong, 'hello', class: %w[cl1 cl2])
+    expect(tag.to_s).to eq(%(<strong class="cl1 cl2">hello</strong>))
+  end
+
   specify 'nested tags' do
     tag = HTML.tag(:div, class: 'box') do |c|
       c.h1 'Title'

@@ -61,6 +61,9 @@ module HTML
           when FalseClass
             # omit
             nil
+          when Hash
+            # k 'data', v.first {foo: 'bar'}
+            v.first.each.with_object([]) { |(key, val), r| r << %(#{k}-#{key}="#{val}") }.join(WHITESPACE)
           else
             [k, %("#{v.join(WHITESPACE)}")].join('=')
           end
