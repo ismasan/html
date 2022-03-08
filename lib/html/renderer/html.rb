@@ -55,8 +55,16 @@ module HTML
         return '' unless attributes.any?
 
         WHITESPACE + attributes.map do |k, v|
-          [k, %("#{v.join(WHITESPACE)}")].join('=')
-        end.join(WHITESPACE)
+          case v.first
+          when TrueClass
+            k
+          when FalseClass
+            # omit
+            nil
+          else
+            [k, %("#{v.join(WHITESPACE)}")].join('=')
+          end
+        end.compact.join(WHITESPACE)
       end
     end
   end

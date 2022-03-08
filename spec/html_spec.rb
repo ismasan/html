@@ -15,6 +15,13 @@ RSpec.describe HTML::Tag do
     expect(tag.to_s).to eq(%(<h1 id="title" class="c1 c2">Hello</h1>))
   end
 
+  specify 'boolean attributes' do
+    tag = HTML.tag(:input, type: 'checkbox', name: 'foo', checked: true)
+    expect(tag.to_s).to eq(%(<input type="checkbox" name="foo" checked />))
+    tag = HTML.tag(:input, type: 'checkbox', name: 'foo', checked: false)
+    expect(tag.to_s).to eq(%(<input type="checkbox" name="foo" />))
+  end
+
   specify 'nested tags' do
     tag = HTML.tag(:div, class: 'box') do |c|
       c.h1 'Title'
