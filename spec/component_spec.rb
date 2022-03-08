@@ -223,4 +223,19 @@ RSpec.describe HTML::Component do
     out = klass2.render(desc: 'Desc')
     expect(out).to eq(%(<div><h1>Hello</h1><p>Desc</p></div>))
   end
+
+  specify 'props with transform blocks' do
+    klass1 = Class.new(described_class) do
+      prop :hx, default: {} do |hash|
+        hash.reduce({}) { |ret, (k, v)| ret.merge(:"hx-#{k}" => v) }
+      end
+
+      def render
+        builder.button 'save', props[:hx]
+      end
+    end
+
+    out = klass1.render(hx: { get: '/a/b', swap: 'before', target: '#foo' })
+    expect(out).to eq(%(<button hx-get="/a/b" hx-swap="before" hx-target="#foo">save</button>))
+  end
 end
