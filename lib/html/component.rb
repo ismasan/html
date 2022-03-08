@@ -8,6 +8,9 @@ module HTML
   end
 
   class Component
+    extend InheritableClassSettings
+    def_settings :props
+
     class Slot
       attr_reader :default
       def initialize(default: nil, &default_block)
@@ -18,6 +21,20 @@ module HTML
         else
           nil
         end
+      end
+    end
+
+    class Prop
+      NOOP = ->(v) { v }
+
+      attr_reader :default
+      def initialize(transform: nil, default: nil, &block)
+        @transform = transform || (block_given? ? block : NOOP)
+        @default = default
+      end
+
+      def call(value)
+        @transform.call(value)
       end
     end
 
@@ -41,12 +58,8 @@ module HTML
       @name || super()
     end
 
-    def self.props
-      @props ||= {}
-    end
-
-    def self.prop(key, opts = {})
-      props[key] = opts
+    def self.prop(key, **opts, &transform)
+      props[key] = Prop.new(**opts, &transform)
     end
 
     def self.slots
@@ -117,10 +130,8 @@ module HTML
       # Functional components take any props
       return props unless self.class.props.any?
 
-      self.class.props.each.with_object({}) do |(key, opts), ret|
-        raise ArgumentError, "expects #{key}" if !props.key?(key) && !opts.key?(:default)
-
-        ret[key] = props.fetch(key, opts[:default])
+      self.class.props.each.with_object({}) do |(key, prop), ret|
+        ret[key] = props.key?(key) ? prop.call(props[key]) : prop.default
       end
     end
   end

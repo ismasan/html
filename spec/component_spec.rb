@@ -6,9 +6,12 @@ RSpec.describe HTML::Component do
       name :input
       prop :name, default: 'correo'
       prop :value
+      prop :class do |cl| # prop transform block
+        "mb:#{cl}"
+      end
 
       def render
-        builder.div class: 'input' do |c|
+        builder.div class: ['input', props[:class]].compact do |c|
           c.tag :input, type: 'text', name: props[:name], value: props[:value]
         end
       end
@@ -22,28 +25,12 @@ RSpec.describe HTML::Component do
       end
     end
 
-    expect(input.render(name: 'email', value: 'email@me.cl')).to eq(%(<div class="input"><input type="text" name="email" value="email@me.cl" /></div>))
+    expect(input.render(name: 'email', value: 'email@me.cl', class: 'cl'))
+      .to eq(%(<div class="input mb:cl"><input type="text" name="email" value="email@me.cl" /></div>))
     # Default prop values
-    expect(input.render(value: 'email@me.cl')).to eq(%(<div class="input"><input type="text" name="correo" value="email@me.cl" /></div>))
+    expect(input.render(value: 'email@me.cl'))
+      .to eq(%(<div class="input"><input type="text" name="correo" value="email@me.cl" /></div>))
     expect(row.render).to eq(%(<div class="row"><div class="input"><input type="text" name="email" value="lol@ca.cl" /></div></div>))
-  end
-
-  specify 'missing arguments' do
-    component = Class.new(described_class) do
-      prop :foo
-    end
-
-    expect {
-      component.render
-    }.to raise_error(ArgumentError)
-
-    expect {
-      component.render(bar: 1)
-    }.to raise_error(ArgumentError)
-
-    # expect {
-    #   component.render(foo:2, bar: 1)
-    # }.to raise_error(ArgumentError)
   end
 
   specify 'nested content' do
@@ -218,5 +205,22 @@ RSpec.describe HTML::Component do
       out3 = component.render(user: user_class.new('Ismael', 'bb'), increment: incr)
       expect(out3).to eq(%(<div class="box"><h1>Ismael</h1><span>2</span></div>))
     end
+  end
+
+  specify 'subclassing' do
+    klass1 = Class.new(described_class) do
+      prop :title, default: 'Hello'
+    end
+    klass2 = Class.new(klass1) do
+      prop :desc
+      def render
+        builder.div do |d|
+          d.h1 props[:title]
+          d.p props[:desc]
+        end
+      end
+    end
+    out = klass2.render(desc: 'Desc')
+    expect(out).to eq(%(<div><h1>Hello</h1><p>Desc</p></div>))
   end
 end
