@@ -61,13 +61,18 @@ module HTML
       new(*args, &block).to_s
     end
 
-    def self.define(name, &block)
+    def self.build(&block)
       klass = Class.new(self)
-      klass.name(name)
       klass.define_method(:render) do
         instance_exec(builder, props, &block)
       end
       klass
+    end
+
+    def self.define(name, &block)
+      build(&block).tap do |klass|
+        klass.name(name)
+      end
     end
 
     attr_reader :type, :name, :props
