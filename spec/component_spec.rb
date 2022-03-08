@@ -54,7 +54,7 @@ RSpec.describe HTML::Component do
         builder.div class: 'parent' do |c|
           c.tag :h1, props[:title]
           c.tag :p do |c|
-            c.tag content
+            c << content
             c.tag(:small, 'smallprint')
           end
         end
@@ -158,6 +158,18 @@ RSpec.describe HTML::Component do
 
       expect(out).to eq(%(<div class="s1">Slot 1</div><div class="s2"><span>Default</span></div>))
     end
+  end
+
+  specify 'components as props' do
+    comp1 = described_class.build do |t, props|
+      t.div do |d|
+        d << props[:child]
+      end
+    end
+
+    child_class = described_class.build { |t, props| t.span(props[:name]) }
+    out = comp1.render(child: child_class.new(name: 'Joan'))
+    expect(out).to eq(%(<div><span>Joan</span></div>))
   end
 
   context 'fragment caching' do

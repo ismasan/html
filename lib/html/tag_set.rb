@@ -17,6 +17,10 @@ module HTML
       @tagset = tagset
     end
 
+    def <<(content)
+      tag(content)
+    end
+
     def tag(...)
       @tagset.tag(...)
     end
