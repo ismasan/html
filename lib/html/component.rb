@@ -124,10 +124,7 @@ module HTML
     end
 
     def resolve_props(props)
-      # Functional components take any props
-      return props unless self.class.props.any?
-
-      self.class.props.each.with_object({}) do |(key, prop), ret|
+      self.class.props.each.with_object(props) do |(key, prop), ret|
         ret[key] = props.key?(key) ? prop.call(props[key]) : prop.default
       end
     end
