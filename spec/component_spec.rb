@@ -64,6 +64,27 @@ RSpec.describe HTML::Component do
     expect(output).to eq(%(<div class="parent"><h1>Parent</h1><p><span>private block</span>last 1<small>smallprint</small></p></div>))
   end
 
+  context 'with inline content as first argument' do
+    let(:component) do
+      described_class.build do |t, props|
+        builder.div id: props[:id] do |d|
+          d << content
+        end
+      end
+    end
+
+    it 'uses it as content' do
+      expect(component.render('hello', id: '123')).to eq(%(<div id="123">hello</div>))
+    end
+
+    it 'ignores content argument if content block passed' do
+      out = component.render('hello', id: '123') do |t|
+        t.strong 'bye'
+      end
+      expect(out).to eq(%(<div id="123"><strong>bye</strong></div>))
+    end
+  end
+
   specify 'listing arrays' do
     contact_list = Class.new(described_class) do
       prop :contacts

@@ -87,11 +87,12 @@ module HTML
 
     attr_reader :type, :name, :props
 
-    def initialize(props = {}, &block)
+    def initialize(*args, &block)
+      props = args.last.is_a?(Hash) ? args.pop : {}
       @type = :component
       @name = self.class.name
       @props = resolve_props(props)
-      @content_block = block_given? ? block : NOOP_CONTENT_BLOCK
+      @content_block = block_given? ? block : (args.first.is_a?(String) ? ->(*) { args.first } : NOOP_CONTENT_BLOCK)
       @slots = SlotRecorder.new(self.class.slots, &@content_block)
       @tag_set = TagSet.new
     end
