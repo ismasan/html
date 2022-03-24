@@ -27,7 +27,12 @@ RSpec.describe HTML::Tag do
     expect(tag.to_s).to eq(%(<strong data-foo="1" data-bar="lol">hello</strong>))
   end
 
-  specify 'Hash attributes' do
+  specify 'Hash attributes with boolean values' do
+    tag = HTML.tag(:strong, 'hello', data: { foo: true, bar: 'lol' })
+    expect(tag.to_s).to eq(%(<strong data-foo data-bar="lol">hello</strong>))
+  end
+
+  specify 'Array attributes' do
     tag = HTML.tag(:strong, 'hello', class: %w[cl1 cl2])
     expect(tag.to_s).to eq(%(<strong class="cl1 cl2">hello</strong>))
   end
