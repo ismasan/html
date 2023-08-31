@@ -33,6 +33,21 @@ RSpec.describe HTML::Component do
     expect(row.render).to eq(%(<div class="row"><div class="input"><input type="text" name="email" value="lol@ca.cl" /></div></div>))
   end
 
+  specify 'with required props' do
+    component = Class.new(described_class) do
+      prop :title, required: true
+
+      def render
+        builder.h1 props[:title]
+      end
+    end
+
+    expect(component.render(title: 'Hello')).to eq(%(<h1>Hello</h1>))
+    expect {
+      component.render
+    }.to raise_error(HTML::Component::MissingRequiredPropError, 'Missing required prop: title')
+  end
+
   specify 'nested content' do
     component = Class.new(described_class) do
       prop :title

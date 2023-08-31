@@ -8,6 +8,12 @@ module HTML
   end
 
   class Component
+    class MissingRequiredPropError < ArgumentError
+      def initialize(key)
+        super("Missing required prop: #{key}")
+      end
+    end
+
     extend InheritableClassSettings
     def_settings :props
     def_settings :slots
@@ -28,10 +34,11 @@ module HTML
     class Prop
       NOOP = ->(v) { v }
 
-      attr_reader :default
-      def initialize(transform: nil, default: nil, &block)
+      attr_reader :default, :required
+      def initialize(transform: nil, default: nil, required: false, &block)
         @transform = transform || (block_given? ? block : NOOP)
         @default = default
+        @required = required
       end
 
       def call(value)
@@ -126,7 +133,7 @@ module HTML
 
     def resolve_props(props)
       self.class.props.each.with_object(props) do |(key, prop), ret|
-        ret[key] = props.key?(key) ? prop.call(props[key]) : prop.default
+        ret[key] = props.key?(key) ? prop.call(props[key]) : (prop.required ? raise(MissingRequiredPropError.new(key)) : prop.default)
       end
     end
   end
